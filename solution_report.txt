@@ -1,0 +1,66 @@
+AI Solution Design Report: Automated Visual Defect Inspection
+
+
+#Task 2: Define the Business Problem
+
+Right now, our quality control relies entirely on factory floor inspectors manually checking products for surface defects like stains, micro-cracks, and deep scratches as they move down a high-speed conveyor belt.
+
+The primary stakeholders impacted by this are:
+
+Quality Control (QC) Inspectors, who have to check parts manually for hours.
+
+Production Managers, who need to keep the assembly lines moving quickly without dropping quality standards.
+
+Plant Operations Directors, who are focused on minimizing product waste and protecting customer trust.
+
+The biggest issue with this traditional setup is human fatigue. It is incredibly difficult to maintain perfect focus during a 10 AM to 7 PM shift under factory lights; eye strain sets in, and subtle flaws inevitably slip through. This manual approach also creates a major bottleneck—if we speed up the production line, our inspectors simply get overwhelmed. Based on our historical factory records, this leads to an unpredictable baseline error rate fluctuating between 7% and 11%.
+
+#Task 3: Identify the AI Task Type
+
+To fix this, we are setting this up as an Image Classification problem.
+
+The goal here is straightforward: the AI needs to look at a snapshot of a manufactured part and instantly sort it into one of two buckets: Normal (Pass) or Stain/Defective (Fail). Since our main objective is to route parts quickly rather than map out the exact pixel coordinates of a scratch, image classification is the most practical and efficient choice. It gives us the processing speed we need to keep up with a fast conveyor belt.
+
+#Task 4: Data Requirement Plan
+
+To build this, we will need unstructured image data. Specifically, we require high-resolution RGB or grayscale photos (.png or .jpeg format) captured by top-down industrial cameras mounted right over the conveyor line.
+
+The input features will be standardized 2D pixel matrices (resized uniformly to 128x128 or 256x256) that capture surface textures, color shifts, and shadows. Our target variable will be a binary label where 0 represents a normal part and 1 represents a stain or defect.
+
+We will collect these images continuously using fixed-mount factory lenses under controlled, uniform LED lighting to keep the data consistent. For the initial training phase, our seasoned QC experts will label the historical image files.
+
+We do need to keep an eye on two main data quality risks:
+
+Class Imbalance: In a well-run factory, over 90% of the products are perfectly fine. Because defects are rare, we risk training a model that simply defaults to guessing "Normal" every time.
+
+Environmental Shifts: Real-world factory floors get dusty. Lens smudges or minor ambient light changes can mess with the image contrast, which might trigger false alarms.
+
+# Task 5: Model Recommendation
+
+I recommend building a Convolutional Neural Network (CNN) and leveraging Transfer Learning with a pre-trained base like ResNet-50 or VGG-16.
+
+Standard neural networks do not understand images well because they flatten the data, which destroys the spatial relationships between pixels. A CNN, on the other hand, uses mathematical filters to scan localized neighborhoods of pixels. This allows the model to naturally recognize visual structures like lines, edges, and textures, no matter where the defect appears on the product.
+
+By using Transfer Learning, we do not have to train the model from scratch. It starts with weights already optimized on millions of diverse images, meaning we can achieve high accuracy with a much smaller batch of factory-specific images while saving massive amounts of training time.
+
+#Task 6: Evaluation Plan
+
+To measure success, we will track a few key technical metrics:
+
+Recall (Sensitivity): This is our most critical metric. High recall means we catch almost every single defect. If we suffer from low recall, defective products slip through to our customers, which damages our reputation.
+
+Precision: This ensures that when the AI flags a part as defective, it actually is. This prevents us from throwing away perfectly good items by mistake.
+
+F1-Score: This will give us a healthy balance between our precision and recall goals.
+
+On the business side, success means dropping our operational error rate from the historical 7-11% baseline down to less than 1.5%. We are also aiming for a 60% reduction in the manual hours spent sorting through routine, non-defective parts.
+
+For failure cases—such as when the model mistakes a deep scratch for a harmless surface shadow—we will implement a Human-in-the-Loop safety net. Any time the model's confidence falls into an uncertain gray area (between 45% and 55%), a mechanical diverter arm will automatically shift that part into a separate review lane for a manual double-check by an on-duty specialist.
+
+#Task 7: Responsible AI Considerations
+
+One risk to watch out for is systemic data bias. If we only train our model using images taken during the day shift under crisp, natural lighting, the system will struggle during the night shift when the plant switches entirely to yellow sodium bulbs.
+
+We also need to protect workplace privacy. The lenses must be tightly framed on the conveyor belt itself to ensure we never capture or log the faces or identities of our factory workers.
+
+Finally, we have to guard against automation bias. If the system works incredibly well, human inspectors might stop doing spot checks entirely. To prevent this over-reliance, we will schedule bi-weekly camera calibrations and run routine blind audits where a human manually inspects a random sample of 100 items approved by the AI.
